@@ -1,0 +1,42 @@
+---
+
+- hosts: all
+  become: true
+  pre_tasks:
+
+  - name: Update repository index (Ubuntu)
+    tags: always
+    apt:
+      update_cache: yes
+    changed_when: false
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Update repository index (CentOS)
+    tags: always
+    yum:
+      update_cache: yes
+    changed_when: false
+    when: ansible_distribution == "CentOS"
+
+  - name: Enabling Prometheus on CentOS
+    tags: centos, apache, httpd, Prometheus
+    service:
+       name: httpd
+       state: started
+    when: ansible_distribution == "CentOS"
+
+  - name: Creating Banner Motd
+    debug:
+     msg: "Ansible Managed node by briantjerome"
+
+
+- hosts: enterprise
+  become: true
+  roles:
+    - enterprise
+
+
+- hosts: monitoring
+  become: true
+  roles:
+    - monitoring
